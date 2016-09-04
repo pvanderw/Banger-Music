@@ -14,17 +14,18 @@ class SoundcloudController extends Controller
 {
 	private $clientID = "20c47993de6f3540cfce0197c2ac7efb";
 
+	public function index()
+	{
+		return view('home');
+	}
+
     public function discover()
     {
     	Session::put('tracks', NULL);
     	Session::put('counter', 0);
     	Session::put('trackCount', 0);
 
-    	return view('discover', [
-    		'tracks' => Session::get('tracks'),
-    		'counter' => Session::get('counter'),
-    		'trackCount' => Session::get('trackCount')
-    	]);
+    	return $this->update();
     }
 
     public function update()
@@ -85,11 +86,29 @@ class SoundcloudController extends Controller
 		Session::put('trackCount', count($tracks));
 		Session::put('counter', 0);
 
-		return view('discover', [
-			'tracks' => $tracks,
-			'counter' => Session::get('counter'),
-			'trackCount' => Session::get('trackCount')
-		]);
+		return $this->update();
+	}
+
+	public function getRelatedTracks($id)
+	{
+		$url = "http://api.soundcloud.com/tracks/$id/related?&client_id=$this->clientID";
+
+		if (Cache::get($url))
+		{
+			$jsonString = Cache::get($url);
+		}
+		else
+		{
+			$jsonString = file_get_contents($url);
+			Cache::put($url, $jsonString, 60);
+		}
+
+		$tracks = json_decode($jsonString);
+		Session::put('tracks', $tracks);
+		Session::put('trackCount', count($tracks));
+		Session::put('counter', 0);
+
+		return $this->update();
 	}
 
 	public function nextTrack()
@@ -123,5 +142,10 @@ class SoundcloudController extends Controller
 		return view('song', [
 			'track' => $track[0]
 		]);
+	}
+
+	public function test()
+	{
+		return redirect("/test");
 	}
 }

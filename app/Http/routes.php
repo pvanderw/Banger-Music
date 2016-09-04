@@ -13,13 +13,14 @@
 
 Route::group(['middleware' => ['web']], function () {
 
-	// Authentication routes
-    Route::get('/', 'SoundcloudController@discover');
+    Route::get('/', 'SoundcloudController@index');
     
     // Soundcloud routes
     Route::get('/discover', 'SoundcloudController@discover');
     Route::post('/filter' , 'SoundcloudController@getFilteredTracks');
     Route::post('/nextTrack', 'SoundcloudController@nextTrack');
+    Route::get('/relatedTracks/{id}', 'SoundcloudController@getRelatedTracks');
     Route::get('/discover_next_song', 'SoundcloudController@update');
     Route::get('/track/{id}', 'SoundcloudController@showTrack');
+    Route::get('/test', 'SoundcloudController@test');
 });
