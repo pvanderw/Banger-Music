@@ -2,6 +2,8 @@
 
 @section('content')
 
+
+
 <div class="container">
     <div class="col-md-10" style="margin:30px auto; float:none;">
         @if (count($errors) > 0)
@@ -60,13 +62,54 @@
 			<h2 id="title">{{$tracks[$counter]->title}}</h2>
 			<h4 id="genre">{{$tracks[$counter]->genre}}</h4>
 			<iframe
-				id="song"
+				id="sc-widget"
 				width="625"
 				height="400"
 				scrolling="no"
 				frameborder="no"
 				src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/{{$tracks[$counter]->id}}&amp;auto_play=true&amp;hide_related=false&amp;show_comments=true&amp;show_user=true&amp;show_reposts=false&amp;visual=true">
 			</iframe>
+			<!-- <iframe id="sc-widget" width="100%" height="166" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?url=http%3A%2F%2Fapi.soundcloud.com%2Ftracks%2F1848538&show_artwork=true"></iframe> -->
+			<script src="https://w.soundcloud.com/player/api.js" type="text/javascript"></script>
+			<script type="text/javascript">
+				function post(path, params, method) {
+				    method = method || "post"; // Set method to post by default if not specified.
+
+				    // The rest of this code assumes you are not using a library.
+				    // It can be made less wordy if you use one.
+				    var form = document.createElement("form");
+				    form.setAttribute("method", method);
+				    form.setAttribute("action", path);
+
+				    for(var key in params) {
+				        if(params.hasOwnProperty(key)) {
+				            var hiddenField = document.createElement("input");
+				            hiddenField.setAttribute("type", "hidden");
+				            hiddenField.setAttribute("name", key);
+				            hiddenField.setAttribute("value", params[key]);
+
+				            form.appendChild(hiddenField);
+				         }
+				    }
+
+				    document.body.appendChild(form);
+				    form.submit();
+				}
+
+				(function(){
+				var widgetIframe = document.getElementById('sc-widget');
+				var widget = SC.Widget(widgetIframe);
+				var newSoundUrl  = "http://api.soundcloud.com/tracks/{{$tracks[$counter]->id}}";
+
+				widget.bind(SC.Widget.Events.READY, function() {
+				  // load new widget
+					widget.bind(SC.Widget.Events.FINISH, function() {
+						post('/nextTrack', {_token: "{{csrf_token()}}"});
+				  	});
+				});
+
+			  }());
+			</script>
 		</div>
 		<?php if ($counter < $trackCount-1) : ?>
 			<div class="container">
